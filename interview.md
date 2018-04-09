@@ -6,10 +6,10 @@
 0. Q: script标签的defer、async的区别? A: defer是在HTML解析完之后才会执行，如果是多个，按照加载的顺序依次执行; async是在加载完成后立即执行，如果是多个，执行顺序和加载顺序无关 
 0. Q: js中改变上下文的方式有哪些？ A：call，apply，bind
 0. Q：js中的函数有几种？A: 普通函数，匿名函数， 闭包函数，自动执行函数等；
-0. Q: 如下代码的区别是什么? `function a() {alert(1)}; var a = function() {alert(1)}` A: 函数声明和函数表达式； 在预解析的时候函数声明优于函数表达式（等同于变量声明）先声明
+0. **@** Q: 如下代码的区别是什么? `function a() {alert(1)}; var a = function() {alert(1)}` A: 函数声明和函数表达式； 在预解析的时候函数声明优于函数表达式（等同于变量声明）先声明
 0. Q: js获取url参数的方法有什么？ A: window.location.href/document.location.href
 1. Q: js中创建dom节点的方法有哪些？ A: createElement,createTextNode,createAttribute,createComment,createDocumentFragment(*);
-2. Q: createDocumentFragment的常用方法是什么？ A: 当需要添加多个dom元素时，如果先将这些元素添加到DocumentFragment中，再统一将DocumentFragment添加到页面，会减少页面渲染dom的次数，效率会明显提升
+2. **@** Q: createDocumentFragment的常用方法是什么？ A: 当需要添加多个dom元素时，如果先将这些元素添加到DocumentFragment中，再统一将DocumentFragment添加到页面，会减少页面渲染dom的次数，效率会明显提升
 3. 
 
 ## jquery & ajax
@@ -39,8 +39,8 @@
 21. Q: 路由实现有几种方式是什么？分别是什么？你用过哪种？ A: 2种；分别是History和Hash；
 22. Q: 如果用过hash的方式，那么后端是怎么配合的？有过什么坑？A: 后端需要配置404页面等路径；坑如：webpack静态路径配置、baseRoute设置等；
 21. Q: 是否用vue做过组件？举个列子？ A: 略；
-22. Q：想在组件的根元素上监听一个原生事件，如何做？ A: 组件中`v-on:click.native="fucntion dosomething()"`
-23. Q: 那么如果我不想用`click.native`而只想用`click`，那么要怎么做？或者说要怎么修改修改组件？ A: 1、子组件监听父组件给的click事件； 2、子组件通过`$emit('click', fn)`的方式触发；
+22. **@** Q：想在组件的根元素上监听一个原生事件，如何做？ A: 组件中`v-on:click.native="fucntion dosomething()"`
+23. **@** Q: 那么如果我不想用`click.native`而只想用`click`，那么要怎么做？或者说要怎么修改修改组件？ A: 1、子组件监听父组件给的click事件； 2、子组件通过`$emit('click', fn)`的方式触发；
 
 ## css3
 
@@ -58,8 +58,7 @@
 
 1. Q：webpack配置文件主要有哪几部分？ A: entry,output,Loader,Plugins
 31. Q：列举一下常用的插件有哪些？A: 各种loader，Plugins；
-32. Q：Loader的主要用途是什么？A: 能够调用外部的脚本或者工具，实现对不同格式文件的处理;
+32. Q: 想屏蔽掉生产环境中的console输出怎么做？ A: UglifyJsPlugin配置中drop_console: true屏蔽掉
+32. **@** Q：Loader的主要用途是什么？A: 能够调用外部的脚本或者工具，实现对不同格式文件的处理;
 33. Q: 是否做过code-splitting？是否做过按需加载？如何实现？ A:  分离业务代码和第三方库; 利用 import() 语法按需加载；
 
-## hightcharts
-这个不熟。。。我可以问d3.js吗？
