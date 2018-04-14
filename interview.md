@@ -39,6 +39,15 @@
 > ``` [...new Set([2, "1", 2, 1, 1, 3, "3"])] ```
 ### 10. 用最短的代码实现一个长度为m且值都n的数组?
 > Array(m).fill(n)
+### 11. JS的原型链是什么？
+> 简单说就是查找__proto__直到存在或为null
+### 12. 假设有一个函数obj里定义了一个print方法输出this，那么obj.print()输出的是什么？var test = obj.print;test()输出的是什么？两者为什么不同？
+> obj.print() -> obj;
+>
+> test() -> window;
+>
+> 原理：obj.print()等价于obj.print.call(obj); test()等价于test.call(undefined);
+
 
 ## jquery & ajax
 
@@ -192,7 +201,7 @@
 
 
 -----
-
+# 非面试内容
 
 ## 如果table中的td内容太长了可以使用省略点，给td标签增加如下类：
 
