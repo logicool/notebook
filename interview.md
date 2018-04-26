@@ -1,5 +1,10 @@
 
 ## javascript
+### 0. javascript有几种类型机制？
+> 基本类型和对象类型
+
+> 基本类型包括：undefined、number、boolean、string、function、object、symbol(ES6)
+>
 
 ### 1.script标签的defer、async的区别? 
 >* defer是在HTML解析完之后才会执行，如果是多个，按照加载的顺序依次执行; 
@@ -34,11 +39,9 @@
 ### 8. **@** createDocumentFragment的常用方法是什么？ 
 >当需要添加多个dom元素时，如果先将这些元素添加到DocumentFragment中，再统一将DocumentFragment添加到页面，会减少页面渲染dom的次数，效率会明显提升
 ### 9. 最短的代码实现数组去重？
-> ``` [2, "1", 2, 1, 1, 3, "3"] ```
-
 > ``` [...new Set([2, "1", 2, 1, 1, 3, "3"])] ```
 ### 10. 用最短的代码实现一个长度为m且值都n的数组?
-> Array(m).fill(n)
+> ```Array(m).fill(n)```
 
 ## jquery & ajax
 
