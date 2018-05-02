@@ -2,9 +2,11 @@
 ## javascript
 ### 0. javascript有几种类型机制？
 > 基本类型和对象类型
-
+>
 > 基本类型包括：undefined、number、boolean、string、function、object、symbol(ES6)
 >
+### 0.5. ReferenceError是什么种类的错误，TypeError是什么种类的错误？
+> ReferenceError 同作用域判别失败相关,而 TypeError 则代表作用域判别成功了,但是对 结果的操作是非法或不合理的。
 
 ### 1.script标签的defer、async的区别? 
 >* defer是在HTML解析完之后才会执行，如果是多个，按照加载的顺序依次执行; 
