@@ -54,3 +54,34 @@ background: white;
 background-clip: padding-box;
 ```
 
+## mix-blend-mode & background-blend-mode
+> 混合模式 & 背景混合模式
+
+>和ps上的混合模式一样
+
+* mix-blend-mode: normal;          //正常
+* mix-blend-mode: multiply;        //正片叠底
+* mix-blend-mode: screen;          //滤色
+* mix-blend-mode: overlay;         //叠加
+* mix-blend-mode: darken;          //变暗
+* mix-blend-mode: lighten;         //变亮
+* mix-blend-mode: color-dodge;     //颜色减淡
+* mix-blend-mode: color-burn;      //颜色加深
+* mix-blend-mode: hard-light;      //强光
+* mix-blend-mode: soft-light;      //柔光
+* mix-blend-mode: difference;      //差值
+* mix-blend-mode: exclusion;       //排除
+* mix-blend-mode: hue;             //色相
+* mix-blend-mode: saturation;      //饱和度
+* mix-blend-mode: color;           //颜色
+* mix-blend-mode: luminosity;      //亮度
+* mix-blend-mode: initial;         //初始
+* mix-blend-mode: inherit;         //继承
+* mix-blend-mode: unset;           //复原
+
+[各种background-blend-mode背景](http://bennettfeely.com/gradients/)
+
+## isolation
+> isolation是一个CSS3属性，顾名思意是“隔离”，支持的值除了万年不变的inherit外还包括auto和isolate.继承没什么好说的。auto实际上就是不干事的意思，是元素的默认值。所以，我们只需要关心isolation: isolate这个声明就好了。isolation: isolate正如其语义，就是隔离的意思，那隔离什么呢？本义是用来隔离mix-blend-mode元素的混合。
+
+>当元素应用了混合模式的时候，默认情况下，其会混合z轴上所有层叠顺序比其低的层叠元素。但是，有时候，我们希望混合模式只到某一个元素，或者只是某一组元素怎么办呢？isolation: isolate就是为了解决这个问题产生的。
