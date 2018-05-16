@@ -1,3 +1,7 @@
+#目录
+
+ [toc] 
+
 ##Selector
 
 * 基本选择器
@@ -107,7 +111,7 @@
 | outset | 3D outset |
 | inherit | 继承父元素 |
 
-#### border-iamge
+#### border-image
 
 | 属性        | 功能    |
 | :-------- | -----  |
@@ -178,3 +182,31 @@
 
 
 ##Background
+###基本属性
+* background-color 背景颜色
+* background-image 背景图片
+* background-repeat 背景图片展示方式
+* background-attachment 背景图片固定还是滚动
+* background-position 背景图片位置
+
+###新增属性
+* background-origin 指定绘制背景图片的起点
+* background-clip 指定背景图片的显示范围
+* background-size 指定背景图片的尺寸大小
+
+> background-origin: padding-box|border-box|content-box;
+
+> background-clip: border-box|padding-box|content-box;
+
+* border-box: 到border外沿
+* padding-box: 到padding的外沿
+* content-box: 到内容的外沿
+
+##Text
+
+##Box
+
+##Transition
+
+##Animation
+
