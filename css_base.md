@@ -1,8 +1,8 @@
-#目录
+# 目录
 
  [toc] 
 
-##Selector
+## Selector
 
 * 基本选择器
 	* \* 通配选择器
@@ -89,8 +89,8 @@
 	
 	> 所以只需要明确一点，:nth-child 选择的是某父元素的子元素，这个子元素并没有指定确切的类型，需要同时满足两个条件时才有效果：*一、是子元素；二、此子元素刚好处在那个位置上*。 **所以相对于脆弱的随时会被其他子元素挤出选择范围的:nth-child，:nth-of-type更稳定，更可靠。**
 	
-##Border
-###基本属性
+## Border
+### 基本属性
 #### border: border-width border-style border-color 其中style是必须的
 
 * border-style: top right bottom left
@@ -181,15 +181,15 @@
 > 证明了box-shadow不会影响页面的任何布局。border元素的边框被计算了宽度，但box-shadow的阴影被浏览器忽略不计。
 
 
-##Background
-###基本属性
+## Background
+### 基本属性
 * background-color 背景颜色
 * background-image 背景图片
 * background-repeat 背景图片展示方式
 * background-attachment 背景图片固定还是滚动
 * background-position 背景图片位置
 
-###新增属性
+### 新增属性
 * background-origin 指定绘制背景图片的起点
 * background-clip 指定背景图片的显示范围
 * background-size 指定背景图片的尺寸大小
@@ -202,11 +202,11 @@
 * padding-box: 到padding的外沿
 * content-box: 到内容的外沿
 
-##Text
+## Text
 
-##Box
+## Box
 
-##Transition
+## Transition
 
-##Animation
+## Animation
 
