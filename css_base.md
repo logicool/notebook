@@ -1,6 +1,8 @@
+
+ [TOC] 
+ 
 # 目录
 
- [toc] 
 
 ## Selector
 
@@ -203,8 +205,57 @@
 * content-box: 到内容的外沿
 
 ## Text
+### 字体类型
+| 属性        | 功能    | 值 |
+| :-------- | --- | -------------- |
+| font-family | 字体类型 | "Times New Roman",Georgia,Serif ... |
+| font-style | 字体样式 | normal,italic,oblique,inherit |
+| font-size/line-height | 字体尺寸和行高 | **font-size**:xx-small,x-small,small,medium,large,x-large,xx-large,smaller(设置为比父元素更小的尺寸) ,larger,length,%,inherit,**line-height**: normal,number(数字，此数字会与当前的字体尺寸相乘来设置行间距),length,% ,inherit |
+| font-weight | 字体粗细 | 100~900(400 等同于 normal，而 700 等同于 bold),normal,bold,bolder,lighter, inherit |
+| font-variant | 字体大小写 | normal，small-caps(小型大写字母), inherit |
+
+### 文本类型
+| 属性        | 功能    | 值 |
+| :-------- | -----  | --- |
+| color	| 设置文本的颜色 | |
+| direction |	规定文本的方向/书写方向 | ltr,rtl,inherit |
+| letter-spacing	| 设置字符间距 | normal,length |
+| line-height	 | 设置行高 | normal,number(数字，此数字会与当前的字体尺寸相乘来设置行间距),length,%,inherit |
+| text-align	| 规定文本的水平对齐方式 | left,center,right,inherit |
+| text-decoration | 规定添加到文本的装饰效果 | none,underline(下),overline（上）,line-through（删除线）, inherit |
+| text-indent | 规定文本块首行的缩进 | length,%(定义基于父元素宽度的百分比的缩进),inherit |
+| text-shadow | 向文本添加阴影 | text-shadow: x-offset y-offset blur color |
+| text-transform | 控制文本的大小写 | none,uppercase,lowercase,capitalize, inherit |
+| white-space	 | 规定如何处理元素中的空白 | normal,nowrap(文本不会换行，文本会在在同一行上继续，直到遇到 `<br>` 标签为止,空白合并),pre(空白会被浏览器保留。其行为方式类似 HTML 中的 `<pre>` 标签),pre-wrap（保留空白符序列，但是正常地进行换行）,pre-line（合并空白符序列，但是保留换行符） |
+| word-spacing | 设置单词间距 | normal,length(可以为负),inherit |
+| text-overflow | 规定当文本溢出包含元素时发生的事情 | clip，ellipsis（显示省略符号来代表被修剪的文本），string（使用给定的字符串来代表被修剪的文本） |
+| word-break | 规定非中日韩文本的换行规则 | normal，break-all（允许在单词内换行），keep-all（只能在半角空格或连字符处换行） |
+| word-wrap | 允许对长的不可分割的单词进行分割并换行到下一行 | normal，break-word（在长单词或 URL 地址内部进行换行） |
+
+---
+> 文本显示省略标记（...）的方法：
+>
+```css 
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+```
+
+---
+
+> 运用text-shadow还可以制作3D立体文字
+> [实现效果看这里](http://result.dabblet.com/gist/9f952e80e87befb20334c432b4d6fad3/ab7670844af4b5a2e922ce597d951fbf997693a9)
+
+
 
 ## Box
+### box-sizing
+> box-sizing: content-box|border-box|inherit;
+
+* box-sizing:content-box 宽度和高度分别应用到元素的内容框(content), 在宽度和高度之外绘制元素的内边距和边框,即：元素的实际宽度 = width + padding + border + margin
+* box-sizing:border-box 为元素设定的宽度和高度决定了元素的边框盒。就是说，为元素指定的任何内边距和边框都将在已设定的宽度和高度内进行绘制,通过从已设定的宽度和高度分别减去边框和内边距才能得到内容的宽度和高度,即：元素的事迹宽度 = width + margin 而content的宽度 = width - border - padding
+
+
 
 ## Transition
 

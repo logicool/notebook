@@ -4,6 +4,7 @@
 >比较常见的实践是用多种分辨率来测试一个网站,然后添加越来越多的 媒体查询(Media Query)规则来修补网站在这些分辨率下出现的问题。但是**每个媒体查询都会增加成本**。
 
 下面有一些建议,可能会帮你避免不必要的媒体查询。
+
 * 使用百分比长度来取代固定长度。如果实在做不到这一点,也应该 尝试使用与视口相关的单位(vw、vh、vmin 和 vmax),它们的值解析为视口宽度或高度的百分比。
 * 当你需要在较大分辨率下得到固定宽度时,使用 max-width而不是 width,因为它可以适应较小的分辨率,而无需使用媒体查询。
  不要忘记为替换元素(比如 img、object、video、iframe 等)设 置一个 max-width,值为 100%。
@@ -18,6 +19,7 @@
 >继承。inherit 可以用在任何CSS属性中,而且它总是绑定到父元素的计算值(对伪元素来说,则会取生成该伪元素的宿主元素)。
 
 例如，tooltip的三角箭头总是希望能够自动继承背景和边框的式样
+
 ```css
 .callout { position: relative; }
 .callout::before { 
@@ -43,11 +45,13 @@
 > * content-box	背景被裁剪到内容框
 
 >如果要实现半透明的边框该怎么做？下面的代码你会发现半透明border不存在，或者说被backgound遮盖了，那么怎么办？
+>
 ```css
 border: 10px solid hsla(0,0%,100%,.5);
 background: white;
 ```
 >这就需要用到background-clip
+>
 ```css
 border: 10px solid hsla(0,0%,100%,.5);
 background: white;
