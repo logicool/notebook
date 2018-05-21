@@ -84,3 +84,48 @@ clipLeft   获取对象剪裁区域的左边坐标。
 clipRight   获取对象剪裁区域的右边坐标。
 clipTop   获取对象剪裁区域的顶边坐标。*/
 ```
+
+# 如果table中的td内容太长了可以使用省略点，给td标签增加如下类：
+
+```css
+.autocut {  
+  max-width:180px;  
+  overflow:hidden;  
+  white-space:nowrap;  
+  text-overflow:ellipsis;  
+  -o-text-overflow:ellipsis;  
+  -icab-text-overflow: ellipsis;  
+  -khtml-text-overflow: ellipsis;  
+  -moz-text-overflow: ellipsis;  
+  -webkit-text-overflow: ellipsis;  
+}
+```
+
+# 增加tooltip
+
+bootstrap中tooltip常见用法如下：
+```html
+<td class="autocut" data-toggle="tooltip" title="Example tooltip">请悬停在我的上面</td>
+```
+title就是鼠标hover上去显示的tooltip内容
+问题是不管有没有省略点td标签都有tooltip出现，这一点看起来不太友好，在没有省略点能完全展示内容的时候不应该有tooltip
+实现方法
+
+html代码
+```html
+<td class="autocut">请悬停在我的上面</td>
+```
+
+js代码，params-table是外层的div
+
+```js
+$('#params-table').on('mouseenter', "table td", function() {
+  // 判断有没有省略点
+  if (this.offsetWidth < this.scrollWidth) {
+    $(this).attr('data-toggle', 'tooltip').attr('title', $(this).text());
+  }
+});
+$('#params-table').on('mouseleave', 'table td', function() {
+  $(this).attr('data-toggle', '');
+});
+```
