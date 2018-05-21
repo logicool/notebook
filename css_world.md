@@ -1,4 +1,4 @@
-#CSS World
+# CSS World
 
 > **CSS世界的诞生就是为图文信息展示服务的**
 
@@ -9,7 +9,7 @@
 * div等会自动填满容器；
 * span等图片文字依次排列，不足则换行；
 
-## 块级元素 block-level elment
+## 块级元素 block-level element
 > 首先，**块级元素**和**display为block的元素**不是一个概念；
 > 例如，`<li>`的默认display为list-item，`<table>`的默认display为table,
 > 但是他们都**块级元素**，因为他们都符合块级元素的**基本特征**：*一个水平流上只能单独显示一个元素，多个块级元素则换行显示*。
