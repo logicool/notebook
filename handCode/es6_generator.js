@@ -59,8 +59,8 @@ var readFile = function (fileName){
 };
 
 var gen = function* (){
-  var f1 = yield readFile('./etc/fstab');
-  var f2 = yield readFile('./etc/shells');
+  var f1 = yield readFile('handCode/etc/fstab');
+  var f2 = yield readFile('handCode/etc/shells');
   console.log(f1.toString());
   console.log(f2.toString());
 };
