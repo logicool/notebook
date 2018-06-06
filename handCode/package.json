@@ -1,0 +1,15 @@
+{
+  "name": "handcode",
+  "version": "1.0.0",
+  "description": "a demo project for handcode",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "gh",
+  "license": "ISC",
+  "dependencies": {
+    "accounting": "^0.4.1",
+    "ramda": "^0.25.0"
+  }
+}
