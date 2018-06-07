@@ -5,17 +5,16 @@ const sequence_config = {
   w: 75, h: 30, s: 3, t: 10
 }
 const colors = [
-  "#ce5242", 
-  "#762f07", 
-  "#96514d", 
-  "#b8d200",
-  "#e6b422",
-  "#2792c3",
-  "#006e54",
-  "#8c6450",
-  "#895b8a",
-  "#70f3ff",
-  "#425066"
+  "#b7282e",
+  "#ec6d71",
+  "#664032", 
+  "#bc763c", 
+  "#99ab4e",
+  "#d0af4c",
+  "#4c6cb3",
+  "#80aba9",
+  "#7a4171",
+  "#715c1f"
 ]
 
 /**
@@ -32,7 +31,7 @@ let sunburst = d3.select("#chart")
 /**
  * 处理层次化数据
  */
-let partition = d3.partition().size([2 * Math.PI, radius * radius])
+let partition = d3.partition().size([2 * Math.PI, radius])
 
 /**
  * 定义圆弧
@@ -40,18 +39,18 @@ let partition = d3.partition().size([2 * Math.PI, radius * radius])
 let arc = d3.arc()
         .startAngle(function(d) {return d.x0})
         .endAngle(function(d) {return d.x1})
-        .innerRadius(function(d) {return Math.sqrt(d.y0)})
-        .outerRadius(function(d) {return Math.sqrt(d.y1)})
+        .innerRadius(function(d) {return d.y0})
+        .outerRadius(function(d) {return d.y1})
 
 /**
  * 读取数据并开始布局
  */
-d3.json("./lineData.json").then(function(text) {
-  // 洗下数据
-  const json = buildHierarchy(text)
-  console.log("json", json)
-  createSunbrust(json)
-});
+// d3.json("./lineData.json").then(function(text) {
+//   // 洗下数据
+//   const json = buildHierarchy(text)
+//   console.log("json", json)
+//   createSunbrust(json)
+// });
 
 /**
  * 构造旭日图
@@ -75,7 +74,7 @@ function createSunbrust(json) {
   const nodes = partition(root).descendants()
 
   // 绘制圆弧
-  var path = sunburst.data([json])
+  let path = sunburst.data([json])
           .selectAll("g")
           .data(nodes)
           .enter()
@@ -88,22 +87,37 @@ function createSunbrust(json) {
       .attr("fill", function(d) {  d._color = colours(d); return d._color })
       .attr("fill-rule", "evenodd")
       .style("opacity", 1)
+      .each(function(d) { this._current = updateArc(d); })
+      .on("click", zoomIn)
       .on("mouseover", mouseover)
 
   path.append("svg:text")
+      // .filter(filter_min_arc_size_text)
       .attr("transform", function (d) {
         const r = (90 * (d.x1 + d.x0) / Math.PI) - 90
         return "rotate(" + r + ")"
       })
-      .attr("x", function (d) { return Math.sqrt(d.y0)})
-      .attr("dx", "6")
-      .attr("dy", ".1em")
+      .attr("x", function (d) { return d.y0})
+      .attr("dx", "8")
+      .attr("dy", ".35em")
       .text(function (d) { return d.data.name })
-      .attr("display", function (d) { return d.children ? null : "none" })
+      .attr("display", function (d) { return filter_min_arc_size_text(d) ? null : "none" })
       .on("mouseover", mouseover)
 
   d3.select("#container").on("mouseleave", mouseleave)
 }
+
+/**
+ * 最小区域
+ * @param {data} d 数据
+ */
+function filter_min_arc_size_text(d) {
+  const {x0,x1,y0,y1} = d
+  const radS = (x1 - x0) * 0.5 * (y1 * y1 - y0 * y0)
+  // console.log(d, radS)
+  return radS > 870
+}; 
+
 
 /**
  * 鼠标覆盖
@@ -199,7 +213,7 @@ function breadcrumbPoints(d, i) {
  */
 function updateBreadcrumb(nodeArray, textString) {
   const r = sequence_config
-  // 绑定数据
+  // 绑定数据 update
   let trail = d3.select('#sequence .trail').selectAll("g")
             .data(nodeArray, function(d) {return d.data.name + d.depth })
   
@@ -208,7 +222,7 @@ function updateBreadcrumb(nodeArray, textString) {
 
   entering.append("svg:polygon")
       .attr("points", breadcrumbPoints)
-      .style("fill", function(d) { return d._color }) // TODO color
+      .style("fill", function(d) { return d._color })
 
   entering.append("svg:text")
       .attr("x", (r.w + r.t) / 2)
@@ -224,14 +238,13 @@ function updateBreadcrumb(nodeArray, textString) {
         return "translate(" + i * (r.w + r.s) + ", 0)"
       })
 
-      console.log("@@@@@", textString)
   // 尾部文字
   d3.select(".trail").select(".breadcumb-text")
       .attr("x", (nodeArray.length + 0.5) * (r.w + r.s))
       .attr("y", r.h / 2)
       .attr("dy", "0.35em")
       .attr("text-anchor", "middle")
-      .text(textString)
+      .text(textString + "人")
 
   // exit
   trail.exit().remove()
@@ -252,12 +265,12 @@ let coloralternative = 0
 function colours(a) {
   const d = [-.15, -.1, -.05, 0]
   if (1 == a.depth) {
-      var e = colors[coloralternative % 9]
+      const e = colors[coloralternative % 9]
       coloralternative++
       return e
   }
   if (a.depth > 1) {
-      var f = d[a.value % 4];
+      const f = d[a.value % 4];
       return d3.rgb(a.parent._color).brighter(.2 * a.depth + f * a.depth)
   }
 }
@@ -313,3 +326,88 @@ function buildHierarchy(json) {
   }
   return root
 }
+
+function zoomIn(p) {
+  if (p.depth > 1) p = p.parent;
+  if (!p.children) return;
+  zoom(p, p);
+}
+
+function zoomOut(p) {
+  if (!p.parent) return;
+  zoom(p.parent, p);
+}
+
+/**
+ * 钻取
+ */
+function zoom(root, p) {
+  if (document.documentElement.__transition__) return;
+
+  let enterArc,
+      exitArc,
+      outsideAngle = d3.scaleLinear().domain([0, 2 * Math.PI]);
+
+  function insideArc(d) {
+    return p.key > d.key
+        ? {depth: d.depth - 1, x0: 0, x1: 0} : p.key < d.key
+        ? {depth: d.depth - 1, x0: 2 * Math.PI, x1: 0}
+        : {depth: 0, x: 0, x1: 2 * Math.PI};
+  }
+
+  function outsideArc(d) {
+    return {depth: d.depth + 1, x: outsideAngle(d.x0), dx: outsideAngle(d.x0 + d.x1) - outsideAngle(d.x0)};
+  }
+
+  // center.datum(root);
+
+  // When zooming in, arcs enter from the outside and exit to the inside.
+  // Entering outside arcs start from the old layout.
+  if (root === p) enterArc = outsideArc, exitArc = insideArc, outsideAngle.range([p.x0, p.x0 + p.x1]);
+
+  //  var new_data=partition.nodes(root).slice(1)
+  const new_data = partition(root).descendants().slice(1)
+
+
+  const path = sunburst.data(new_data);
+    
+ // When zooming out, arcs enter from the inside and exit to the outside.
+  // Exiting outside arcs transition to the new layout.
+  if (root !== p) enterArc = insideArc, exitArc = outsideArc, outsideAngle.range([p.x0, p.x0 + p.x1]);
+
+  d3.transition().duration(d3.event.altKey ? 7500 : 750).each(function() {
+    path.exit().transition()
+        .style("fill-opacity", function(d) { return d.depth === 1 + (root === p) ? 1 : 0; })
+        .attrTween("d", function(d) { return arcTween.call(this, exitArc(d)); })
+        .remove();
+        
+    path.enter().append("path")
+        .style("fill-opacity", function(d) { return d.depth === 2 - (root === p) ? 1 : 0; })
+        .style("fill", function(d) { return d._color; })
+        .on("click", zoomIn)
+        .on("mouseover", mouseover)
+        .each(function(d) { this._current = enterArc(d); });
+
+    path.transition()
+        .style("fill-opacity", 1)
+        .attrTween("d", function(d) { return arcTween.call(this, updateArc(d)); });   
+  });
+
+}
+
+function arcTween(b) {
+  var i = d3.interpolate(this._current, b);
+  this._current = i(0);
+  return function(t) {
+    return arc(i(t));
+  };
+}
+
+function updateArc(d) {
+  return {depth: d.depth, x0: d.x0, x1: d.x1};
+}
+
+
+
+
+createSunbrust(buildHierarchy(lineData))
