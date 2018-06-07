@@ -1,4 +1,7 @@
-const months = ['四月份','三月份']
+const fs = require('fs')
+const path = require('path')
+
+const months = ['四月份']
 const fields = ['新旅服','新分销','运价','总体','数据','系维','航空产品','机场产品','结算产品']
 const groups = [
                 ['ALG','INV','FLT','CSM','RCT/IROP','SEAT'], 
@@ -20,7 +23,7 @@ const sections = [
                     ['开发','测试'],
                     ['合计'],
                 ]
-const datas = [
+const datas4 = [
     0,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1
     ,6,2,3,0,1,3,5,6,0,4,1,6,6,0,0,0,0,0,1,0,0,0,1,3,0,0,1,1,1,1,2,2,0,1,1,0,0,0,0,0,0,0,0,0,1,1
     ,7,13,7,6,5,7,21,23,3,16,7,25,12,2,4,23,6,2,6,23,9,7,5,10,15,7,6,7,4,8,8,0,10,4,0,0,0,12,5,8,0,23,11,3,4,14
@@ -36,7 +39,10 @@ const datas = [
     ,1,0,0,1,4,1,19,2,3,0,2,8,6,0,1,1,0,0,0,8,2,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ,1,3,2,1,2,2,4,3,0,1,0,3,1,0,0,1,0,0,0,2,0,0,1,2,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     ,0,0,0,0,0,0,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    ,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1
+]
+
+const datas3 = [
+    1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,0,1,1,1,1,1
     ,6,2,3,0,1,3,5,6,0,4,1,6,6,0,0,0,0,0,1,0,0,0,1,3,0,0,1,1,1,1,2,2,0,1,1,0,0,0,0,0,0,0,0,0,1,1
     ,8,13,7,7,5,7,21,23,3,16,7,25,12,2,4,22,6,4,6,24,9,7,7,10,15,7,6,9,4,9,8,0,10,4,0,0,0,12,5,8,0,23,11,3,4,14
     ,3,4,2,2,2,3,4,2,0,4,2,2,6,0,0,2,0,0,0,3,0,0,3,4,0,0,2,0,0,0,2,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0
@@ -79,29 +85,33 @@ const baseLineData = function() {
     //     }
     // }
 
-    // month - region - section - field - group
-    for (let a = 0; a < months.length; a++) {
-        const month = months[a];
-        for (let b = 0; b < regions.length; b++) {
-            const region = regions[b];
-            for (let c = 0; c < sections[b].length; c++) {
-                const section = sections[b][c];
-                for (let d = 0; d < fields.length; d++) {
-                    const field = fields[d];
-                    for (let e = 0; e < groups[d].length; e++) {
-                        const group = groups[d][e];
-                        const name = [month, field, group, region, section].join('-')
-                        const value = datas[dataNum]
-                        lineData.push({name, value})
-                        dataNum++
-                    }
+    // region - section - field - group
+    for (let b = 0; b < regions.length; b++) {
+        const region = regions[b];
+        for (let c = 0; c < sections[b].length; c++) {
+            const section = sections[b][c];
+            for (let d = 0; d < fields.length; d++) {
+                const field = fields[d];
+                for (let e = 0; e < groups[d].length; e++) {
+                    const group = groups[d][e];
+                    const name = [field, group, region, section].join('-')
+                    const value = datas4[dataNum]
+                    lineData.push({name, value})
+                    dataNum++
                 }
             }
         }
     }
 
-    console.dir(lineData)
+    // console.dir(lineData)
     return lineData
 }
 
-baseLineData()
+const outputfile = path.resolve(__dirname, './lineData.json')
+fs.writeFile(outputfile, JSON.stringify(baseLineData()), function (err) {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log('ok.');
+    }
+})
