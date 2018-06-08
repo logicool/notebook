@@ -31,34 +31,13 @@ let sunburst = d3.select("#chart")
   .attr("id", "container")
   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
 
-let center = sunburst.append("circle")
-  .attr("r", radius / 5)
-  .on("click", zoomOut);
+let partition = d3.partition()
 
-center.append("title")
-  .text("zoom out");
-
-/**
- * 处理层次化数据
- */
-let partition = d3.partition().size([2 * Math.PI, radius])
-
-/**
- * 定义圆弧
- */
-let arc = d3.arc()
-  .startAngle(function (d) {
-    return d.x0
-  })
-  .endAngle(function (d) {
-    return d.x1
-  })
-  .innerRadius(function (d) {
-    return d.y0
-  })
-  .outerRadius(function (d) {
-    return d.y1
-  })
+const arc = d3.arc()
+  .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x0))); })
+  .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x1))); })
+  .innerRadius(function(d) { return Math.max(0, y(d.y0)); })
+  .outerRadius(function(d) { return Math.max(0, y(d.y1)); });
 
 /**
  * 读取数据并开始布局
@@ -105,9 +84,9 @@ function createSunbrust(json) {
     .data(nodes)
     .enter()
     .append("svg:g")
-    .attr("display", function (d) {
-      return d.depth ? null : "none"
-    })
+    // .attr("display", function (d) {
+    //   return d.depth ? null : "none"
+    // })
 
   path.append("svg:path")
     .attr("d", arc)
@@ -118,30 +97,25 @@ function createSunbrust(json) {
     })
     .attr("fill-rule", "evenodd")
     .style("opacity", 1)
-    .each(function (d) {
-      this._current = updateArc(d);
-    })
-    .on("click", zoomIn)
+    .on("click", click)
     .on("mouseover", mouseover)
 
   path.append("svg:text")
-    // .filter(filter_min_arc_size_text)
-    .attr("transform", function (d) {
-      const r = (90 * (d.x1 + d.x0) / Math.PI) - 90
-      return "rotate(" + r + ")"
+    .attr("transform", function(d) { 
+      return "rotate(" + computeTextRotation(d) + ")"; 
     })
-    .attr("x", function (d) {
-      return d.y0
+    .attr("x", function(d) { 
+        return y(d.y0); 
     })
-    .attr("dx", "8")
-    .attr("dy", ".35em")
-    .text(function (d) {
-      return d.data.name
+    .attr("dx", "6") // margin
+    .attr("dy", ".35em") // vertical-align
+    .text(function(d) { 
+        return d.data.name === "root" ? "" : d.data.name
     })
     .attr("display", function (d) {
       return filter_min_arc_size_text(d) ? null : "none"
     })
-    .on("click", zoomIn)
+    .on("click", click)
     .on("mouseover", mouseover)
 
   d3.select("#container").on("mouseleave", mouseleave)
@@ -160,8 +134,8 @@ function filter_min_arc_size_text(d) {
     y0,
     y1
   } = d
-  const radS = (x1 - x0) * 0.5 * (y1 * y1 - y0 * y0)
-  // console.log(d, radS)
+  const radS = (x1 - x0) * Math.PI * (y(y1) * y(y1) - y(y0) * y(y0))
+  console.log(d, radS)
   return radS > 870
 };
 
@@ -214,7 +188,7 @@ function mouseleave(d) {
 
   d3.selectAll("path")
     .transition()
-    .duration(1e3)
+    .duration(300)
     .style("opacity", 1)
     // 重新启用mouseover监听
     .on("end", function () {
@@ -322,6 +296,7 @@ let coloralternative = 0
 
 function colours(a) {
   const d = [-.15, -.1, -.05, 0]
+  if(0 === a.depth) return "#fff"
   if (1 == a.depth) {
     const e = colors[coloralternative % 9]
     coloralternative++
@@ -394,192 +369,50 @@ function buildHierarchy(json) {
   return root
 }
 
-function zoomIn(p) {
-  console.log("zoomIn p.depth", p.depth)
-  if (p.depth > 1) p = p.parent;
-  if (!p.children) return;
-  console.log("zoomIn", p)
-  zoom(p, p);
-}
 
-function zoomOut(p) {
-  if (!p || !p.parent) return;
-  zoom(p.parent, p);
-}
+const x = d3.scaleLinear()
+    .range([0, 2 * Math.PI]);
 
-// function sunburstZoom(p) {
-//   if (p.depth === 0) {
-//     if (!p.parent) return;
-//     zoom(p.parent, p);
-//   } else {
-//     if (p.depth > 1) p = p.parent;
-//     if (!p.children) return;
-//     zoom(p, p);
-//   }
-//   // click(p)
-// }
+const y = d3.scaleSqrt()
+    .range([0, radius]);
 
-// var x = d3.scaleLinear()
-//     .range([0, 2 * Math.PI]);
+function click(d) {
+  // 虚化所有的svg
+  let text = d3.select("#container")
+                .selectAll("text")
+  text.transition().attr("opacity", 0);
 
-// var y = d3.scaleSqrt()
-//     .range([0, radius]);
-
-// function click(d) {
-//   sunburst.transition()
-//       .duration(750)
-//       .tween("scale", function() {
-//         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-//             yd = d3.interpolate(y.domain(), [d.y0, 1]),
-//             yr = d3.interpolate(y.range(), [d.y0 ? 20 : 0, radius]);
-//         return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
-//       })
-//     .selectAll("path")
-//       .attrTween("d", function(d) { return function() { return arc(d); }; });
-// }
-
-/**
- * 钻取
- */
-function zoom(p0, p1) {
-  if (document.documentElement.__transition__) return;
-
-  let enterArc,
-    exitArc,
-    outsideAngle = d3.scaleLinear().domain([0, 2 * Math.PI]);
-
-  function insideArc(d) {
-    return p0.key > d.key ?
-      {
-        depth: d.depth - 1,
-        x0: 0,
-        x1: 0
-      } : p0.key < d.key ?
-      {
-        depth: d.depth - 1,
-        x0: 2 * Math.PI,
-        x1: 0
-      } :
-      {
-        depth: 0,
-        x: 0,
-        x1: 2 * Math.PI
-      };
-  }
-
-  function outsideArc(d) {
-    return {
-      depth: d.depth + 1,
-      x0: outsideAngle(d.x0),
-      x1: outsideAngle(d.x0 + d.x1) - outsideAngle(d.x0)
-    };
-  }
-
-
-  // When zooming in, arcs enter from the outside and exit to the inside.
-  // Entering outside arcs start from the old layout.
-  if (p0 === p1) enterArc = outsideArc, exitArc = insideArc, outsideAngle.range([p1.x0, p1.x1]);
-
-  // console.log("center", p0)
-  
-  center.datum(p0);
-
-  let root = d3.hierarchy(p0.data)
-    .sum(function (d) {
-      return d.size;
-    })
-    .sort(function (a, b) {
-      return b.value - a.value;
-    })
-  
-  const new_data=partition(root).descendants()
-
-
-  let sunburst = d3.select("#container")
-                .selectAll("g")
-                .data(new_data, function(d) { return d });
-
-  // When zooming out, arcs enter from the inside and exit to the outside.
-  // Exiting outside arcs transition to the new layout.
-  if (p0 !== p1) enterArc = insideArc, exitArc = outsideArc, outsideAngle.range([p1.x0, p1.x1]);
-
-  d3.transition().duration(d3.event.altKey ? 7500 : 750).each(function () {
-    sunburst.exit()
-      .transition()
-      .style("fill-opacity", function (d) {
-        return d.depth === 1 + (p0 === p1) ? 1 : 0;
+  sunburst.transition()
+      .duration(750)
+      .tween("scale", function() {
+        const xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+            yd = d3.interpolate(y.domain(), [d.y0, 1]),
+            yr = d3.interpolate(y.range(), [d.y0 ? 20 : 0, radius]);
+        return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
       })
-      .attrTween("d", function (d) {
-        return arcTween.call(this, exitArc(d));
-      })
-      .remove();
-      
-    let entering = sunburst.enter()
-              .append("svg:g")
-              .attr("display", function (d) {
-                return d.depth ? null : "none"
+    .selectAll("path")
+      .attrTween("d", function(d) { return function() { return arc(d); }; })
+    .on("end", function(e, i) {
+      if (e.x0 > d.x0 && e.x0 < d.x1) {
+          const arcText = d3.select(this.parentNode).select("text");
+          arcText.transition().duration(750)
+              .attr("opacity", 1)
+              .attr("class", "visible")
+              .attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
+              .attr("x", function(d) { return y(d.y0); })
+              .text(function(d) { 
+                  return d.data.name === "root" ? "" : d.data.name
               })
-    
-    entering.append("svg:path")
-            .attr("d", arc)
-            .attr("stroke", "#fff")
-            .attr("fill", function (d) {
-              d._color = colours(d);
-              return d._color
-            })
-            .attr("fill-rule", "evenodd")
-            .style("opacity", 1)
-            .each(function (d) {
-              this._current = updateArc(d);
-            })
-            .on("click", zoomIn)
-            .on("mouseover", mouseover)
-
-    entering.transition()
-      .style("fill-opacity", 1)
-      .attrTween("d", function (d) {
-        return arcTween.call(this, updateArc(d));
-      });
-
-    entering.append("svg:text")
-      // .filter(filter_min_arc_size_text)
-      .attr("transform", function (d) {
-        const r = (90 * (d.x1 + d.x0) / Math.PI) - 90
-        return "rotate(" + r + ")"
-      })
-      .attr("x", function (d) {
-        return d.y0
-      })
-      .attr("dx", "8")
-      .attr("dy", ".35em")
-      .text(function (d) {
-        return d.data.name
-      })
-      .attr("display", function (d) {
-        return filter_min_arc_size_text(d) ? null : "none"
-      })
-      .on("click", zoomIn)
-      .on("mouseover", mouseover)
-  });
-
+              .attr("display", function (d) {
+                return filter_min_arc_size_text(d) ? null : "none"
+              })
+      }
+    });
 }
 
-function arcTween(b) {
-  var i = d3.interpolate(this._current, b);
-  this._current = i(0);
-  return function (t) {
-    return arc(i(t));
-  };
+function computeTextRotation(d) {
+  return (x((d.x0 + d.x1)/2) - Math.PI / 2) / Math.PI * 180;
 }
-
-function updateArc(d) {
-  return {
-    depth: d.depth,
-    x0: d.x0,
-    x1: d.x1
-  };
-}
-
 
 
 

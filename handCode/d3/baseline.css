@@ -47,7 +47,7 @@ body {
 
 #explanation {
   position: absolute;
-  top: 300px;
+  top: 260px;
   left: 305px;
   width: 140px;
   text-align: center;
@@ -62,4 +62,14 @@ body {
 .breadcumb-text {
   font-size: 13px;
   font-weight: 700;
+}
+
+circle,
+path {
+  cursor: pointer;
+}
+
+circle {
+  fill: none;
+  pointer-events: all;
 }
