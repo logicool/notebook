@@ -1,5 +1,4 @@
-const width = 750,
-  height = 650
+const width = 750,height = 650
 const radius = Math.min(width, height) / 2
 const sequence_config = {
   w: 75,
@@ -41,7 +40,9 @@ center.append("title")
 /**
  * 处理层次化数据
  */
-let partition = d3.partition().size([2 * Math.PI, radius])
+let partition = d3.partition()        
+              // .sort(function(a, b) { return d3.ascending(a.name, b.name); })
+              .size([2 * Math.PI, radius])
 
 /**
  * 定义圆弧
@@ -77,8 +78,6 @@ let arc = d3.arc()
 function createSunbrust(json) {
   // 初始化序列
   initbreadcrumb()
-  // 添加透明圆，辅助监测鼠标离开
-  // sunburst.append("svg:circle").attr("r", radius).style("opacity", 0)
 
   console.log("json", json)
 
@@ -87,27 +86,30 @@ function createSunbrust(json) {
     .sum(function (d) {
       return d.size;
     })
-    .sort(function (a, b) {
-      return b.value - a.value;
-    })
 
   console.log("root", root)
   // partition()将root数据进行分区布局，类似树型结构，然后通过descendants将布局后的
   // 数据结构按照从根节点开始，以拓扑顺序跟随子节点进行排序，最后返回拓扑排序的节点数组
   // descendants()返回一个扁平的数组来表达root的子孙后代
-  const nodes = partition(root).descendants()
+  const nodes = partition(root)
+            .each(
+              function(d) {
+                d.key = key(d);
+              }
+            ).descendants()
   
   // console.log("nodes", nodes)
 
   // 绘制圆弧
-  let path = sunburst.data([json])
+  let path = sunburst
+    // .data([json])
     .selectAll("g")
     .data(nodes)
     .enter()
     .append("svg:g")
-    .attr("display", function (d) {
-      return d.depth ? null : "none"
-    })
+    // .attr("display", function (d) {
+    //   return d.depth ? null : "none"
+    // })
 
   path.append("svg:path")
     .attr("d", arc)
@@ -119,7 +121,7 @@ function createSunbrust(json) {
     .attr("fill-rule", "evenodd")
     .style("opacity", 1)
     .each(function (d) {
-      this._current = updateArc(d);
+      d._current = updateArc(d)
     })
     .on("click", zoomIn)
     .on("mouseover", mouseover)
@@ -407,37 +409,6 @@ function zoomOut(p) {
   zoom(p.parent, p);
 }
 
-// function sunburstZoom(p) {
-//   if (p.depth === 0) {
-//     if (!p.parent) return;
-//     zoom(p.parent, p);
-//   } else {
-//     if (p.depth > 1) p = p.parent;
-//     if (!p.children) return;
-//     zoom(p, p);
-//   }
-//   // click(p)
-// }
-
-// var x = d3.scaleLinear()
-//     .range([0, 2 * Math.PI]);
-
-// var y = d3.scaleSqrt()
-//     .range([0, radius]);
-
-// function click(d) {
-//   sunburst.transition()
-//       .duration(750)
-//       .tween("scale", function() {
-//         var xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-//             yd = d3.interpolate(y.domain(), [d.y0, 1]),
-//             yr = d3.interpolate(y.range(), [d.y0 ? 20 : 0, radius]);
-//         return function(t) { x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); };
-//       })
-//     .selectAll("path")
-//       .attrTween("d", function(d) { return function() { return arc(d); }; });
-// }
-
 /**
  * 钻取
  */
@@ -449,98 +420,106 @@ function zoom(p0, p1) {
     outsideAngle = d3.scaleLinear().domain([0, 2 * Math.PI]);
 
   function insideArc(d) {
+    // return {
+    //   x0:0,
+    //   x1:0,
+    //   y0:0,
+    //   y1:0
+    // }
+    // console.log("insideArc", p0.key, "@" ,d.key, "@" , p0.key > d.key, "@" , p0.key < d.key)
     return p0.key > d.key ?
       {
-        depth: d.depth - 1,
         x0: 0,
-        x1: 0
+        x1: 0,
+        y0: d.y0,
+        y1: d.y1
       } : p0.key < d.key ?
       {
-        depth: d.depth - 1,
         x0: 2 * Math.PI,
-        x1: 0
+        x1: 0,
+        y0: d.y0,
+        y1: d.y1
       } :
       {
-        depth: 0,
-        x: 0,
-        x1: 2 * Math.PI
+        x0: 0,
+        x1: 2 * Math.PI,
+        y0: d.y0,
+        y1: d.y1
       };
   }
 
   function outsideArc(d) {
     return {
-      depth: d.depth + 1,
       x0: outsideAngle(d.x0),
-      x1: outsideAngle(d.x0 + d.x1) - outsideAngle(d.x0)
+      x1: outsideAngle(d.x1) - outsideAngle(d.x0),
+      y0:d.y0,
+      y1:d.y1
     };
   }
 
 
-  // When zooming in, arcs enter from the outside and exit to the inside.
-  // Entering outside arcs start from the old layout.
   if (p0 === p1) enterArc = outsideArc, exitArc = insideArc, outsideAngle.range([p1.x0, p1.x1]);
 
-  // console.log("center", p0)
+  console.log("center", p0)
   
   center.datum(p0);
-
-  let root = d3.hierarchy(p0.data)
-    .sum(function (d) {
-      return d.size;
-    })
-    .sort(function (a, b) {
-      return b.value - a.value;
-    })
   
-  const new_data=partition(root).descendants()
+  const new_data=partition(p0).descendants()
 
+  // console.log("new_data", new_data)
 
   let sunburst = d3.select("#container")
                 .selectAll("g")
-                .data(new_data, function(d) { return d });
+                .data(new_data, function(d) {return d.data.name});
 
-  // When zooming out, arcs enter from the inside and exit to the outside.
-  // Exiting outside arcs transition to the new layout.
   if (p0 !== p1) enterArc = insideArc, exitArc = outsideArc, outsideAngle.range([p1.x0, p1.x1]);
 
+  // console.log("enterArc", enterArc)
+  // console.log("exitArc", exitArc)
+  // console.log("enterArc", enterArc)
+  
   d3.transition().duration(d3.event.altKey ? 7500 : 750).each(function () {
     sunburst.exit()
       .transition()
-      .style("fill-opacity", function (d) {
-        return d.depth === 1 + (p0 === p1) ? 1 : 0;
-      })
-      .attrTween("d", function (d) {
-        return arcTween.call(this, exitArc(d));
-      })
+    .style("opacity", 0.1)
+      // .style("fill-opacity", function (d) {
+      //   return d.depth === 1 + (p0 === p1) ? 1 : 0;
+      // })
+      // .attrTween("d", function (d) {
+      //   return arcTween(d, exitArc(d));
+      // })
       .remove();
       
     let entering = sunburst.enter()
               .append("svg:g")
-              .attr("display", function (d) {
-                return d.depth ? null : "none"
-              })
+              // .attr("display", function (d) {
+              //   return d.depth ? null : "none"
+              // })
     
     entering.append("svg:path")
-            .attr("d", arc)
+            // .attr("d", arc)
             .attr("stroke", "#fff")
             .attr("fill", function (d) {
-              d._color = colours(d);
+              // d._color = colours(d);
               return d._color
             })
             .attr("fill-rule", "evenodd")
             .style("opacity", 1)
             .each(function (d) {
-              this._current = updateArc(d);
+              d._current = enterArc(d)
             })
             .on("click", zoomIn)
             .on("mouseover", mouseover)
 
-    entering.transition()
+    entering
+      .merge(sunburst)
+      .transition()
       .style("fill-opacity", 1)
-      .attrTween("d", function (d) {
-        return arcTween.call(this, updateArc(d));
-      });
+      // .attrTween("d", function (d) {
+      //   return arcTween(d, updateArc(d));
+      // });
 
+      
     entering.append("svg:text")
       // .filter(filter_min_arc_size_text)
       .attr("transform", function (d) {
@@ -564,23 +543,29 @@ function zoom(p0, p1) {
 
 }
 
-function arcTween(b) {
-  var i = d3.interpolate(this._current, b);
-  this._current = i(0);
+function arcTween(d, b) {
+  var i = d3.interpolate(d._current, b);
+  d._current = i(0);
   return function (t) {
+    // console.log(d.data.name, t, i(t))
     return arc(i(t));
   };
 }
 
 function updateArc(d) {
   return {
-    depth: d.depth,
     x0: d.x0,
-    x1: d.x1
+    x1: d.x1,
+    y0: d.y0,
+    y1: d.y1
   };
 }
 
-
+function key(d) {
+  var k = [], p = d;
+  while (p.depth) k.push(p.data.name), p = p.parent;
+  return k.reverse().join(".");
+}
 
 
 createSunbrust(buildHierarchy(lineData))
