@@ -397,15 +397,9 @@ function click(d) {
           const arcText = d3.select(this.parentNode).select("text");
           arcText.transition().duration(750)
               .attr("opacity", 1)
-              .attr("class", "visible")
               .attr("transform", function() { return "rotate(" + computeTextRotation(e) + ")" })
               .attr("x", function(d) { return y(d.y0); })
-              .text(function(d) { 
-                  return d.data.name === "root" ? "" : d.data.name
-              })
-              .attr("display", function (d) {
-                return filter_min_arc_size_text(d) ? null : "none"
-              })
+
       }
     });
 }

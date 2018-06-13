@@ -104,9 +104,10 @@ function createSunbrust(json) {
   // 绘制圆弧
   let path = sunburst
     // .data([json])
-    .selectAll("path")
+    .selectAll("g")
     .data(nodes)
     .enter()
+    .append("svg:g")
     // .attr("display", function (d) {
     //   return d.depth ? null : "none"
     // })
@@ -465,7 +466,7 @@ function zoom(p0, p1) {
   // console.log("new_data", new_data)
 
   let sunburst = d3.select("#container")
-            .selectAll("path")
+            .selectAll("g")
             .data(new_data, function(d) {return d});
 
   if (p0 !== p1) enterArc = insideArc, exitArc = outsideArc, outsideAngle.range([p1.x0, p1.x1]);
@@ -473,8 +474,8 @@ function zoom(p0, p1) {
   // console.log("enterArc", enterArc)
   // console.log("exitArc", exitArc)
   // console.log("enterArc", enterArc)
-    
-  console.log("$$$$", sunburst)
+  
+
   // TODO
   sunburst.exit().transition().duration(750)
     .attrTween("d", function (d) {
@@ -482,17 +483,13 @@ function zoom(p0, p1) {
       if (d.data.name=="ALG") {
         console.log("---exit---", d)
       }
-      return arcTween(d, {x0:0,x1:0,y0:d.y0,y1:d.y1});
+      return arcTween(d, {x0:0,x1:2*Math.PI,y0:d.y0,y1:d.y1});
       // return arcTween(d, exitArc(d));
     })
-    // .attrTween("fill", function() {
-    //   return function(t) {
-    //     return "hsl(" + t * 360 + ",100%,50%)";
-    //   };
-    // })
     .remove();
     
   let entering = sunburst.enter()
+          .append("svg:g")
           .append("svg:path")
           .style("fill-opacity", 0)
           // .attr("d", arc)
@@ -514,7 +511,7 @@ function zoom(p0, p1) {
   entering
     .merge(sunburst)
     .transition()
-    // .duration(750)
+    .duration(750)
     .style("fill-opacity", 1)
     .attrTween("d", function (d) {
       return arcTween(d, updateArc(d));
