@@ -477,6 +477,7 @@ function zoom(p0, p1) {
   console.log("$$$$", sunburst)
   // TODO
   sunburst.exit().transition().duration(750)
+    .style("fill-opacity", function(d) { return d.depth === 1 + (p0 === p1) ? 1 : 0; })
     .attrTween("d", function (d) {
       // console.log("@",d)
       if (d.data.name=="ALG") {
