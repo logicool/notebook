@@ -6,6 +6,7 @@
 - [ ] 《你不知道的JavaScript 上》
 - [ ] 《你不知道的JavaScript 中》
 - [ ] 《你不知道的JavaScript 下》
+- [ ] 《Javascript 高级程序设计》
 - [x] 《css揭秘》
 - [x] 《图解CSS3》
 - [ ] 《css世界》
