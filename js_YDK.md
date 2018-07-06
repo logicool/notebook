@@ -28,4 +28,178 @@
 
 > 所以，`ReferenceError` 同作用域判别失败相关， 而 `TypeError` 则代表作用域判别成功了， 但是对结果的操作是非法或不合理的。
 
+---
+
 ## 函数作用域和块作用域
+
+> 函数作用域的含义是指， 属于这个函数的全部变量都可以在整个函数的范围内使用及复用（ 事实上在嵌套的作用域中也可以使用）。 这种设计方案是非常有用的， 能充分利用JavaScript 变量可以根据需要改变值类型的“动态” 特性。
+
+例子：
+```js
+// 这些标识符（a、 b、 c、 foo 和 bar） 在 foo(..) 的内部都是可以被访问的， 同样在bar(..) 内部也可以被访问（假设 bar(..) 内部没有同名的标识符声明）。
+function foo(a) {
+  var b = 2;
+  // 一些代码
+  function bar() {
+  // ...
+  }
+  var c = 3;
+}
+
+bar(); // 失败
+console.log( a, b, c ); // 三个全都失败
+```
+
+> 块作用域通过ES6的let实现，在这之前ES3通过try/catch也可以实现；
+
+例如：
+```js
+try{throw 2;}catch(a){
+  console.log( a ); // 2
+} 
+console.log( a ); // ReferenceError
+```
+
+---
+
+## 提升
+
+> 当你看到 `var a = 2;` 时， 可能会认为这是一个声明。 但 JavaScript 实际上会将其看成两个声明： `var a; 和 a = 2;`。 第一个定义声明是在编译阶段进行的。 第二个赋值声明会被留在原地等待执行阶段，如下两个例子；
+
+> 因此，这个过程就好像变量和函数声明从它们在代码中出现的位置被“移动”到了最上面。 这个过程就叫作提升。
+
+```js
+a = 2;
+var a;
+console.log( a ); // 2
+```
+
+```js
+console.log( a ); // undefined
+var a = 2;
+```
+
+**只有声明本身会被提升， 而赋值或其他运行逻辑会留在原地。**
+
+> 函数的提升
+
+```js
+foo();
+function foo() {
+  console.log( a ); // undefined
+  var a = 2;
+}
+```
+*上面的代码等价于*
+```js
+function foo() { // 函数声明被提升
+  var a;
+  console.log( a ); // undefined
+  a = 2;
+}
+
+foo();
+```
+
+>函数声明会被提升， 但是函数表达式却不会被提升。
+
+```js
+foo(); // TypeError
+bar(); // ReferenceError
+var foo = function bar() {
+  // ...
+};
+```
+*上面代码等价于*
+```js
+var foo;
+foo(); // TypeError
+bar(); // ReferenceError
+foo = function() {
+  var bar = ...self...
+  // ...
+}
+```
+
+> 这段程序中的变量标识符 foo() 被提升并分配给所在作用域（在这里是全局作用域）， 因此foo() 不会导致 `ReferenceError`。 但是 foo 此时并没有赋值（如果它是一个函数声明而不是函数表达式， 那么就会赋值）。 foo() 由于对 undefined 值进行函数调用而导致非法操作，因此抛出 `TypeError` 异常。
+
+> 而bar()，即使是具名的函数表达式，名称标识符在赋值之前也无法在所在作用域中。所以bar没有被声明，抛出`ReferenceError`异常。
+
+
+### 函数优先
+
+我们知道了函数和变量声明都会被提升，但是函数会首先被提升， 然后才是变量。
+如下代码：
+
+```js
+foo(); // 1
+var foo; //**注意**
+function foo() {
+  console.log( 1 );
+} 
+foo = function() {
+  console.log( 2 );
+};
+```
+他被编译器理解为:
+```js
+// 函数声明被提升到变量声明之前，导致var foo因重复声明而被忽略
+function foo() { 
+  console.log( 1 );
+} 
+foo(); // 1
+foo = function() {
+  console.log( 2 );
+};
+```
+
+尽管重复的 var 声明会被忽略掉， 但出现在后面的函数声明还是可以覆盖前面的函数声明。
+
+```js
+foo(); // 3
+function foo() {
+  console.log( 1 );
+}
+var foo = function() {
+  console.log( 2 );
+};
+function foo() {
+  console.log( 3 );
+}
+```
+---
+## 作用域闭包
+
+@TODO
+
+---
+
+## 动态作用域、词法作用域、this
+
+有如下代码：
+
+```js
+function foo() {
+  console.log( a ); // 2
+}
+function bar() {
+  var a = 3;
+  foo();
+}
+var a = 2;
+bar();
+```
+>词法作用域让 foo() 中的 a 通过 `RHS` 引用到了全局作用域中的 a， 因此会输出 2。
+
+>而动态作用域并不关心函数和作用域是如何声明以及在何处声明的， 只关心它们从何处调用。 换句话说， 作用域链是基于调用栈的， 而不是代码中的作用域嵌套。
+```js
+// 所以如果是动态作用域的话,foo()中的a会顺着调用栈在调用 foo() 的地方查找
+// 由于 foo() 是在 bar() 中调用的，引擎会检查 bar() 的作用域， 并在其中找到值为 3 的变量a
+function foo() {
+  console.log( a ); // 3
+}
+
+....
+```
+
+> 需要明确的是， 事实上 JavaScript 并不具有动态作用域。 它只有词法作用域， 简单明了。但是 this 机制某种程度上很像动态作用域。主要区别： 词法作用域是在写代码或者说定义时确定的， 而动态作用域是在运行时确定的。（this 也是！ ） **词法作用域关注函数在何处声明， 而动态作用域关注函数从何处调用。**
